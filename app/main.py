@@ -62,29 +62,34 @@ TITLE = st.container()
 ##st.markdown("<br>", unsafe_allow_html=True)
 
 with TITLE:
-    st.title('Single Cell Analysis Tool Kit')
+#    st.title('scStudio')
+    st.markdown('<p style="font-family:sans-serif; color:#04410D; font-weight:bold; font-size: 30px;">scStudio</p>', \
+        unsafe_allow_html = True)
     st.markdown('<p style="font-family:sans-serif; color:#CA0327; font-size: 18px;">Catalogue of tools for analysing single-cell sequencing data to identifying biomarkers with added exploratory data analysis tools and visualization tools.This tool also supports between the cell types and within the cell conditions</p>', \
                 unsafe_allow_html = True)
 
-
+#@st.cache(suppress_st_warning=True, persist=True)
 def file_uploader():
     col1, col2, col3 = st.columns([3, 1, 1])
-    with open('apps/STYLE.css') as f:
+    with open('app/STYLE.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     with col1:
         uploaded_file = st.file_uploader("Choose .h5ad file")
     if uploaded_file is not None:
         dataf = scanpy.read_h5ad(uploaded_file)
+#        dataf = dataf.raw.to_adata()
         ob, va = dataf.shape
         all_celltypes, all_samples = dataf.obs['cell_type'].nunique(), dataf.obs['patient_id'].nunique()
         with col2:
             st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cells<br></p><p style="font-family:Arial; font-size: 20px;"><strong>{ob}</strong></p>''',  unsafe_allow_html=True)
         with col2:
             st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Genes<br></p><p style="font-family:Arial; font-size: 20px;"><strong>{va}</strong>''',  unsafe_allow_html=True)
+#        with col3:
+#            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cell Types</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_celltypes}</strong></p>''',  unsafe_allow_html=True)
+#        with col3:
+#            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Total samples</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_samples}</strong></p>''',  unsafe_allow_html=True)
         with col3:
-            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cell Types</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_celltypes}</strong></p>''',  unsafe_allow_html=True)
-        with col3:
-            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Total samples</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_samples}</strong></p>''',  unsafe_allow_html=True)
+            st.image('cell-icon-12.jpg', output_format = 'JPEG', use_column_width = 'always')
         return dataf, True
     else:
         st.markdown('<p style="font-family:sans-serif; color:#03673D; font-size: 15px;">Upload your file</p>', \
@@ -94,31 +99,34 @@ def file_uploader():
             st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cells<br></p><p style="font-family:Arial; font-size: 20px;"><strong>{ob}</strong></p>''',  unsafe_allow_html=True)
         with col2:
             st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Genes<br></p><p style="font-family:Arial; font-size: 20px;"><strong>{va}</strong>''',  unsafe_allow_html=True)
+#        with col3:
+#            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cell Types</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_celltypes}</strong></p>''',  unsafe_allow_html=True)
+#        with col3:
+#            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Total samples</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_samples}</strong></p>''',  unsafe_allow_html=True)
         with col3:
-            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cell Types</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_celltypes}</strong></p>''',  unsafe_allow_html=True)
-        with col3:
-            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Total samples</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_samples}</strong></p>''',  unsafe_allow_html=True)
+            st.image('cell-icon-12.jpg', output_format = 'JPEG', use_column_width = 'always')       
         return False,False
 
-
+    
 
 menu = st.sidebar.radio(
     "",
-    ("Summary", "Quality Control", "Vizualization", "Differential Gene Expression"),
+    ("Summary", "Vizualization", "Differential Gene Expression"),
 )
 
 fileup_container = st.container()
 
-with open('apps/STYLE.css') as f:
+with open('app/STYLE.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 
 adata, upfile = file_uploader()
+
 if upfile:
     if menu == 'Summary':
         meta_info(adata)
-    elif menu == 'Quality Control':
-        qc_info(adata)
+#    elif menu == 'Quality Control':
+#        qc_info(adata)
     elif menu == 'Vizualization':
         viz_info(adata)
     elif menu == 'Differential Gene Expression':
