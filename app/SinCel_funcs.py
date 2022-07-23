@@ -55,7 +55,7 @@ def pseudo_bulk_deg(adata):
 def meta_info(adata):
     st.header('General Meta data')
     adata_stats = lambda x : adata.obs[x].nunique() \
-        if adata.obs[x].dtype == 'category' else adata.obs[x].sum().round() 
+        if adata.obs[x].dtype == 'category' else adata.obs[x].sum() 
     TABLE = st.container()
 
 
@@ -79,10 +79,24 @@ def meta_info(adata):
 #
 #        st.write(adata.obs.head(st.session_state.show))
     obs_dtypes = adata.obs.dtypes.to_frame(name='type')
-    obs_dict = dict(zip(obs_dtypes.index, \
-        [Counter(adata.obs[col]) for col in obs_dtypes.index \
-            if str(obs_dtypes.loc[col].type) == 'category']))
+#    print(obs_dtypes)
 
+    def get_count():
+        cols = [col for col in obs_dtypes.index if str(obs_dtypes.loc[col].type) == 'category' \
+            if adata.obs[col].nunique() != adata.shape[0]]
+        obs_dic = dict(zip(cols, \
+            [Counter(adata.obs[col]) for col in cols]))
+        return obs_dic
+
+    print(get_count())        
+    obs_dict = get_count()
+#    obs_dict = dict(zip(obs_dtypes.index, \
+#        [Counter(adata.obs[col]) for col in obs_dtypes.index \
+#            if str(obs_dtypes.loc[col].type) == 'category']))
+#    for key,value in obs_dict.items():
+#        if value == len(adata.obs_names):
+#    del obs_dict['barcodes']
+#    print(obs_dict.keys())
         
 
 #    mp_bar = st.container() 
@@ -107,29 +121,29 @@ def meta_info(adata):
 
 
 
-def  qc_info(adata):
-    st.header('Quality control of single cell Sequencing data')
-    st.sidebar.markdown('<p style="font-family:sans-serif; font-weight:bold ;color:#04410D ;font-size: 18px;">Quality Control</p>',\
-        unsafe_allow_html = True)
-    st.sidebar.markdown('<p style="font-family:sans-serif ;font-size: 12px;">Quality Statistics for Single Cell Data</p>',\
-        unsafe_allow_html = True)
-    
-        
-    hist_counts = hv.Histogram((np.histogram(adata.obs['log1p_total_counts'], bins=100))).opts(width = 400, \
-        height = 300, xlabel = 'counts depth').relabel('Histograms of count depth per cell')
-    hist_genes = hv.Histogram((np.histogram(adata.obs['log1p_n_genes_by_counts'], bins=100))).opts(width = 400, \
-        height = 300, xlabel = 'genes count').relabel('Histogram of the number of genes detected per cell')
-    elb_plt = hv.Points(list(enumerate(adata.obs['n_counts'].sort_values(ascending = False).values))).\
-        opts(logy = True, width = 400, height = 300, xlabel = 'Barcode Rank', ylabel = 'log counts depth').\
-            relabel('Count depth distribution from high to low count depths')
-    genes_counts = hv.Points((adata.obs['n_counts'].values, \
-        adata.obs['n_genes'].values)).opts(xlabel = 'count depth', \
-            ylabel = 'genes per cell', width = 400, height = 300).relabel('Number of genes versus the count depth')
-
-    qc_layout = hv.Layout(hist_counts + hist_genes + elb_plt + \
-        genes_counts).opts(shared_axes = False).cols(2)
-
-    st.bokeh_chart(hv.render(qc_layout, backend = 'bokeh'))
+#def  qc_info(adata):
+#    st.header('Quality control of single cell Sequencing data')
+#    st.sidebar.markdown('<p style="font-family:sans-serif; font-weight:bold ;color:#04410D ;font-size: 18px;">Quality Control</p>',\
+#        unsafe_allow_html = True)
+#    st.sidebar.markdown('<p style="font-family:sans-serif ;font-size: 12px;">Quality Statistics for Single Cell Data</p>',\
+#        unsafe_allow_html = True)
+#    
+#        
+#    hist_counts = hv.Histogram((np.histogram(adata.obs['log1p_total_counts'], bins=100))).opts(width = 400, \
+#        height = 300, xlabel = 'counts depth').relabel('Histograms of count depth per cell')
+#    hist_genes = hv.Histogram((np.histogram(adata.obs['log1p_n_genes_by_counts'], bins=100))).opts(width = 400, \
+#        height = 300, xlabel = 'genes count').relabel('Histogram of the number of genes detected per cell')
+#    elb_plt = hv.Points(list(enumerate(adata.obs['n_counts'].sort_values(ascending = False).values))).\
+#        opts(logy = True, width = 400, height = 300, xlabel = 'Barcode Rank', ylabel = 'log counts depth').\
+#            relabel('Count depth distribution from high to low count depths')
+#    genes_counts = hv.Points((adata.obs['n_counts'].values, \
+#        adata.obs['n_genes'].values)).opts(xlabel = 'count depth', \
+#            ylabel = 'genes per cell', width = 400, height = 300).relabel('Number of genes versus the count depth')
+#
+#    qc_layout = hv.Layout(hist_counts + hist_genes + elb_plt + \
+#        genes_counts).opts(shared_axes = False).cols(2)
+#
+#    st.bokeh_chart(hv.render(qc_layout, backend = 'bokeh'))
 
 def plot_violine(anndata, top_genes):
     genes = anndata.to_df().mean(0).sort_values(ascending = False).head(top_genes).index
@@ -282,7 +296,7 @@ def viz_info(adata):
     st.header('Single Cell data Vizualization')
     gex = st.container()
     cor = st.container()
-    print(adata)
+#    print(adata)
     st.sidebar.markdown('<p style="font-family:sans-serif; font-weight:bold ;color:#04410D;font-size: 18px;">Vizualization</p>',\
         unsafe_allow_html = True)
     st.sidebar.markdown('Gene Expression Plots')
@@ -294,7 +308,7 @@ def viz_info(adata):
         if 'update_val_vio' not in st.session_state:
             st.session_state.update_val_vio = st.session_state.val_vio
         violine_genes, violine_df = plot_violine(adata, int(st.session_state.update_val_vio))
-        print(violine_df)
+        #print(violine_df)
         vio1, vio2 = st.tabs(['Plot','Table'])
         with vio1:
             st.bokeh_chart(hv.render(violine_genes, backend = 'bokeh'))
@@ -302,10 +316,16 @@ def viz_info(adata):
             st.bokeh_chart(hv.render(hv.Table(violine_df).opts(width = 800, height = 500), backend = 'bokeh'))
 
     obs_dtypes = adata.obs.dtypes.to_frame(name='type')
-    obs_dict = dict(zip(obs_dtypes.index, \
-        [Counter(adata.obs[col]) for col in obs_dtypes.index \
-            if str(obs_dtypes.loc[col].type) == 'category']))
+    def get_count():
+        cols = [col for col in obs_dtypes.index if str(obs_dtypes.loc[col].type) == 'category' \
+            if adata.obs[col].nunique() != adata.shape[0]]
+        obs_dic = dict(zip(cols, \
+            [Counter(adata.obs[col]) for col in cols]))
+        return obs_dic
+
     
+    bx_val = get_count().keys() 
+
     clust_map = st.sidebar.checkbox('Show Cluster Map')
     if clust_map:
         clust_col1,clust_col2 = st.columns([2,0.5])
@@ -316,7 +336,7 @@ def viz_info(adata):
         if 'update_val_clust' not in st.session_state:
             st.session_state.update_val_clust = st.session_state.val_clust
         with clust_col1:
-            st.selectbox('Group by', obs_dict.keys(), key = 'clust', on_change = group_on_change_clust)
+            st.selectbox('Group by', bx_val, key = 'clust', on_change = group_on_change_clust)
         if 'update_clust' not in st.session_state:
             st.session_state.update_clust  = st.session_state.clust
         
@@ -342,7 +362,7 @@ def viz_info(adata):
         if 'update_val_dot' not in st.session_state:
             st.session_state.update_val_dot = st.session_state.val_dot
         with dot_col1:
-            st.selectbox('Group by', obs_dict.keys(), key = 'dot', on_change = group_on_change_dot)
+            st.selectbox('Group by', bx_val, key = 'dot', on_change = group_on_change_dot)
         if 'update_dot' not in st.session_state:
             st.session_state.update_dot  = st.session_state.dot
         dotplot, dotplot_df = Plot_dotmatrix(adata, st.session_state.update_dot, \
@@ -366,7 +386,7 @@ def viz_info(adata):
 #            scanpy.pp.pca(adata)
 #        st.success('Done!')
         st.markdown('<p style="font-family:sans-serif; color:#CA0327; font-weight:bold; font-size: 18px;">PCA PLOT</p>',unsafe_allow_html = True)
-        st.selectbox('Group by', obs_dict.keys(), key = 'pca', on_change = group_on_change_pca)
+        st.selectbox('Group by', bx_val, key = 'pca', on_change = group_on_change_pca)
         if 'update_pca' not in st.session_state:
             st.session_state.update_pca = st.session_state.pca
         pca = plot_pca(adata, st.session_state.update_pca)
@@ -379,7 +399,7 @@ def viz_info(adata):
 #        st.success('Done!')
 #        tsne =  plot_tsne(adata, 'n_counts')
         st.markdown('<p style="font-family:sans-serif; color:#CA0327; font-weight:bold; font-size: 18px;">TSNE PLOT</p>',unsafe_allow_html = True)
-        st.selectbox('Group by', obs_dict.keys(), key = 'tsne', on_change = group_on_change_tsne)
+        st.selectbox('Group by', bx_val, key = 'tsne', on_change = group_on_change_tsne)
         if 'update_tsne' not in st.session_state:
             st.session_state.update_tsne = st.session_state.tsne
 #        preprocess_TSNE()
@@ -394,7 +414,7 @@ def viz_info(adata):
 #        st.success('Done!')
 #        umap =  plot_umap(adata, 'n_counts')
         st.markdown('<p style="font-family:sans-serif; color:#CA0327; font-weight:bold; font-size: 18px;">UMAP PLOT</p>',unsafe_allow_html = True)
-        st.selectbox('Group by', obs_dict.keys(), key = 'umap', on_change = group_on_change_umap)
+        st.selectbox('Group by', bx_val, key = 'umap', on_change = group_on_change_umap)
         if 'update_umap' not in st.session_state:
             st.session_state.update_umap = st.session_state.umap
 #        preprocess_UMAP()

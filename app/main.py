@@ -79,11 +79,11 @@ def file_uploader():
         dataf = scanpy.read_h5ad(uploaded_file)
 #        dataf = dataf.raw.to_adata()
         ob, va = dataf.shape
-        all_celltypes, all_samples = dataf.obs['cell_type'].nunique(), dataf.obs['patient_id'].nunique()
-        with col2:
-            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cells<br></p><p style="font-family:Arial; font-size: 20px;"><strong>{ob}</strong></p>''',  unsafe_allow_html=True)
-        with col2:
-            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Genes<br></p><p style="font-family:Arial; font-size: 20px;"><strong>{va}</strong>''',  unsafe_allow_html=True)
+#        all_celltypes, all_samples = dataf.obs['cell_type'].nunique(), dataf.obs['patient_id'].nunique()
+#        with col2:
+#            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cells<br></p><p style="font-family:Arial; font-size: 20px;"><strong>{ob}</strong></p>''',  unsafe_allow_html=True)
+#        with col2:
+#            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Genes<br></p><p style="font-family:Arial; font-size: 20px;"><strong>{va}</strong>''',  unsafe_allow_html=True)
 #        with col3:
 #            st.markdown(f'''><p style="font-family:Arial; font-size: 15px;">Cell Types</p><p style="font-family:Arial; font-size: 20px;"><strong>{all_celltypes}</strong></p>''',  unsafe_allow_html=True)
 #        with col3:
