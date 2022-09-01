@@ -1,2 +1,3 @@
 scanpy[leiden]
 holoviews[recommended]
+streamlit
